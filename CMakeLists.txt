@@ -40,19 +40,25 @@ pico_set_program_version(PICOW_A3 "0.1")
 pico_enable_stdio_uart(PICOW_A3 0)
 pico_enable_stdio_usb(PICOW_A3 1)
 
+add_subdirectory(SH1106)
 # Add the standard library to the build
 target_link_libraries(PICOW_A3
-        pico_stdlib)
+    pico_stdlib
+    hardware_i2c
+    hardware_clocks
+    hardware_dma)
 
 # Add the standard include files to the build
 target_include_directories(PICOW_A3 PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  SH1106
 )
 
 # Add any user requested libraries
 target_link_libraries(PICOW_A3 
         pico_cyw43_arch_none
+        SH1106
         )
 
 pico_add_extra_outputs(PICOW_A3)
