@@ -52,6 +52,7 @@ target_link_libraries(PICOW_A3
 target_include_directories(PICOW_A3 PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  ${CMAKE_SOURCE_DIR}/include
   SH1106
 )
 
