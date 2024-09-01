@@ -17,8 +17,9 @@ typedef struct
     uint8_t freq_cur;
     uint8_t core_usage;
     uint8_t tmp;
-    uint16_t vram;
-    uint16_t vram_cur;
+    uint8_t vram;
+    float vram_cur;
+    uint8_t  vram_usage;
 }GPU;
 
 typedef struct 
