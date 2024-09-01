@@ -23,7 +23,7 @@ typedef struct
 
 typedef struct 
 {
-    float ram;
+    uint8_t ram;
     float ram_cur;
     uint8_t ram_usage;
 }RAM;
