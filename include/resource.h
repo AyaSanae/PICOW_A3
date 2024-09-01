@@ -36,4 +36,26 @@ typedef struct
     RAM ram;
 }resource;
 
+typedef struct 
+{
+   int_fast8_t cpu_usage_change; 
+   int_fast8_t gpu_usage_change;    
+   int_fast8_t vram_usage_change;    
+   int_fast8_t ram_usage_change;  
+}usage_change;
+
+typedef struct{
+    int_fast16_t cpu_freq_change;
+    int_fast16_t gpu_freq_change;
+    float vram_change;
+    float ram_change;
+}freq_change;
+ 
+typedef struct 
+{
+    int_fast8_t cpu_tmp_change; 
+    int_fast8_t gpu_tmp_change; 
+}tmp_change;
+
+
 #endif
