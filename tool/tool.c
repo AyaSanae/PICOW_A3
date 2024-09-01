@@ -24,3 +24,7 @@ int frame_copy_dma(uint8_t *d_frame,uint8_t *s_frame,int dma_chan){
 
     return chan;
 }
+
+int max(int x, int y) {
+    return (x > y) ? x : y;
+}
