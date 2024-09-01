@@ -13,8 +13,8 @@ typedef struct
 
 typedef struct 
 {
-    uint8_t freq;
-    uint8_t freq_cur;
+    uint16_t freq;
+    uint16_t freq_cur;
     uint8_t core_usage;
     uint8_t tmp;
     uint8_t vram;
