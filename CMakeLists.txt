@@ -42,6 +42,7 @@ pico_enable_stdio_usb(PICOW_A3 1)
 
 add_subdirectory(SH1106)
 add_subdirectory(ui)
+add_subdirectory(tool)
 # Add the standard library to the build
 target_link_libraries(PICOW_A3
     pico_stdlib
@@ -56,6 +57,7 @@ target_include_directories(PICOW_A3 PRIVATE
   ${CMAKE_SOURCE_DIR}/include
   SH1106
   ui
+  tool
 )
 
 # Add any user requested libraries
@@ -63,6 +65,7 @@ target_link_libraries(PICOW_A3
         pico_cyw43_arch_none
         SH1106
         ui
+        tool
         )
 
 pico_add_extra_outputs(PICOW_A3)
