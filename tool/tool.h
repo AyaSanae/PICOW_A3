@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
-void frame_copy_dma(uint8_t *d_frame,uint8_t *s_frame);
+#define DMA_CHAN_UNSET  100
+
+int frame_copy_dma(uint8_t *d_frame,uint8_t *s_frame,int dma_chan);
 
 #endif
