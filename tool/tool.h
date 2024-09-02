@@ -2,10 +2,13 @@
 #define __tool
 
 #include <stdint.h>
+#include "resource.h"
 
 #define DMA_CHAN_UNSET  100
 
 int frame_copy_dma(uint8_t *d_frame,uint8_t *s_frame,int dma_chan);
-int max(int x, int y);
+static inline int max_abs(int x, int y);
+
+uint16_t getResourceChangeMax_abs(usage_change uc,freq_change fc,tmp_change tc);
 
 #endif
