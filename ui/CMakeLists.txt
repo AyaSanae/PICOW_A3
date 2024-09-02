@@ -10,4 +10,6 @@ target_include_directories(ui PUBLIC
 target_link_libraries(ui
     pico_stdlib
     SH1106
+    tool
+    hardware_dma
 )
