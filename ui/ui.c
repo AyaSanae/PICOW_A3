@@ -195,67 +195,52 @@ void Render_ResPage(uint8_t *frame,resource *resce){
         r_progress  = resce[RESC_PRE].ram.ram_usage + r * r_sign;
         vr_progress = resce[RESC_PRE].gpu.vram_usage + vr * vr_sign;
         tc_progress = resce[RESC_PRE].cpu.tmp  + t_c * tc_sign;
-        tg_progress = resce[RESC_PRE].gpu.tmp  + t_g * tg_sign;
+        tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
-        dma_channel_wait_for_finish_blocking(dma_chan);
-        //CPU
-        for (;change <= abs_max_usageChange;)
+        for (; change <= abs_max_usageChange;)
         {
-            Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0,c_progress);
-            OLED_WriteChar(frame,88,32,((c_progress / 10) % 10 ) + '0');
-            OLED_WriteChar(frame,96,32,(c_progress  % 10) + '0');
-
-            if(c <= abs(uc.cpu_usage_change) && uc.cpu_usage_change)
+            if (c <= abs(uc.cpu_usage_change) && uc.cpu_usage_change)
                 c++;
-            break;
-        }
-
-        //GPU
-        for (;change <= abs_max_usageChange;)
-        {
-            Draw_ProgressBar(frame, 27, 8, OLED_WIDTH, 8, g_progress);
-            OLED_WriteChar(frame,88,41,((g_progress / 10) % 10 ) + '0');
-            OLED_WriteChar(frame,96,41,(g_progress  % 10) + '0');
-            if(g <= abs(uc.gpu_usage_change) && uc.gpu_usage_change)
+            if (g <= abs(uc.gpu_usage_change) && uc.gpu_usage_change)
                 g++;
-            break;
-        }
-
-        //VRAM
-        for (;change <= abs_max_usageChange;){
-            OLED_WriteChar(frame,88,48,((vr_progress / 10) % 10 ) + '0');
-            OLED_WriteChar(frame,96,48,(vr_progress  % 10) + '0');
-            if(vr <= abs(uc.vram_usage_change) && uc.vram_usage_change)
+            if (vr <= abs(uc.vram_usage_change) && uc.vram_usage_change)
                 vr++;
-            break;
-        }
-
-        //RAM
-        for (;change <= abs_max_usageChange;)
-        {
-            Draw_ProgressBar(frame, 27, 16, OLED_WIDTH, 16, r_progress);
-            OLED_WriteChar(frame,88,56,((r_progress / 10) % 10 ) + '0');
-            OLED_WriteChar(frame,96,56,(r_progress  % 10) + '0');
-            if(r <= abs(uc.ram_usage_change) && uc.ram_usage_change)
+            if (r <= abs(uc.ram_usage_change) && uc.ram_usage_change)
                 r++;
-            break;
-        }
-
-        //CPU_TMP
-        for (;change <= abs_max_usageChange;){
-            OLED_WriteChar(frame,112,32,((tc_progress / 10) % 10) + '0');
-            OLED_WriteChar(frame,120,32,(tc_progress % 10) + '0');
-            if(t_c <= abs(tc.cpu_tmp_change) && tc.cpu_tmp_change)
+            if (t_c <= abs(tc.cpu_tmp_change) && tc.cpu_tmp_change)
                 t_c++;
-            break;
-        }
-
-        //GPU_TMP
-        for (;change <= abs_max_usageChange;){
-            OLED_WriteChar(frame,112,41,((tg_progress / 10) % 10) + '0');
-            OLED_WriteChar(frame,120,41,(tg_progress % 10) + '0');
-            if(t_g <= abs(tc.gpu_tmp_change) && tc.gpu_tmp_change)
+            if (t_g <= abs(tc.gpu_tmp_change) && tc.gpu_tmp_change)
                 t_g++;
+
+            dma_channel_wait_for_finish_blocking(dma_chan);
+
+            // CPU
+            Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);
+            OLED_WriteChar(frame, 88, 32, ((c_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 96, 32, (c_progress % 10) + '0');
+
+            // GPU
+            Draw_ProgressBar(frame, 27, 8, OLED_WIDTH, 8, g_progress);
+            OLED_WriteChar(frame, 88, 41, ((g_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 96, 41, (g_progress % 10) + '0');
+
+            // VRAM
+            OLED_WriteChar(frame, 88, 48, ((vr_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 96, 48, (vr_progress % 10) + '0');
+
+            // RAM
+            Draw_ProgressBar(frame, 27, 16, OLED_WIDTH, 16, r_progress);
+            OLED_WriteChar(frame, 88, 56, ((r_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 96, 56, (r_progress % 10) + '0');
+
+            // CPU_TMP
+            OLED_WriteChar(frame, 112, 32, ((tc_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 120, 32, (tc_progress % 10) + '0');
+
+            // GPU_TMP
+            OLED_WriteChar(frame, 112, 41, ((tg_progress / 10) % 10) + '0');
+            OLED_WriteChar(frame, 120, 41, (tg_progress % 10) + '0');
+
             break;
         }
 
