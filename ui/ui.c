@@ -148,7 +148,13 @@ static inline void Draw_preFrameBar(uint8_t *frame,resource *resce){
     Draw_ProgressBar(frame,27,16, OLED_WIDTH, 16, resce[RESC_PRE].ram.ram_usage);
 }
 
-static inline void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
+static inline void checkAndIncrement(int *counter, int change){
+    if (*counter <= abs(change) && change) {
+        (*counter)++;
+    }
+}
+
+static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
                                         int dma_chan,tmp_change tc,freq_change fc,usage_change uc){
 
     for(uint16_t change = 0;change <= render_frameNum;change++)
@@ -175,18 +181,12 @@ static inline void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resou
         tc_progress = resce[RESC_PRE].cpu.tmp + t_c * tc_sign;
         tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
-        if (c <= abs(uc.cpu_usage_change) && uc.cpu_usage_change)
-            c++;
-        if (g <= abs(uc.gpu_usage_change) && uc.gpu_usage_change)
-            g++;
-        if (vr <= abs(uc.vram_usage_change) && uc.vram_usage_change)
-            vr++;
-        if (r <= abs(uc.ram_usage_change) && uc.ram_usage_change)
-            r++;
-        if (t_c <= abs(tc.cpu_tmp_change) && tc.cpu_tmp_change)
-            t_c++;
-        if (t_g <= abs(tc.gpu_tmp_change) && tc.gpu_tmp_change)
-            t_g++;
+        checkAndIncrement(&c, uc.cpu_usage_change);
+        checkAndIncrement(&g, uc.gpu_usage_change);
+        checkAndIncrement(&vr, uc.vram_usage_change);
+        checkAndIncrement(&r, uc.ram_usage_change);
+        checkAndIncrement(&t_c, tc.cpu_tmp_change);
+        checkAndIncrement(&t_g, tc.gpu_tmp_change);
 
         dma_channel_wait_for_finish_blocking(dma_chan);
 
