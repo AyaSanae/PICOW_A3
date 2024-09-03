@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include "frame_template.h"
 #include "hardware/dma.h"
-#include "math.h"
 
 #include <stdio.h>
 
@@ -155,12 +154,7 @@ static inline void checkAndIncrement(int *counter, int change){
     }
 }
 
-static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
-                                        int dma_chan,tmp_change tc,freq_change fc,usage_change uc){
-
-    for(uint16_t change = 0;change < render_frameNum;change++)
-    {
-       if(change == 0){
+static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_change tc,resource *resce){
           //COUNTER INIT
           c = 0;
           g = 0;
@@ -168,7 +162,7 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
           vr = 0;
           t_c  = 0;
           t_g  = 0;
-          freq_incr_margin_counter = 0;
+          cpu_freq_incr_margin_counter = 0;
 
           //CHANGE SIGN INIT
           c_sign = (uc.cpu_usage_change >= 0) ? 1 : -1; 
@@ -180,11 +174,20 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
           freq_incr_sign = (fc.cpu_freq_change >= 0) ? 1 : -1;
 
           //CPU FREQ INCR INIT
-          freq_incr_total = 0;
-          freq_after_incr = resce[RESC_PRE].cpu.freq_cur;
-          freq_incr_each = fc.cpu_freq_change / 100;
-          freq_incr_margin = fc.cpu_freq_change % 100;
-        }
+          cpu_freq_incr_total = 0;
+          cpu_freq_after_incr = resce[RESC_PRE].cpu.freq_cur;
+          cpu_freq_incr_each = fc.cpu_freq_change / 100;
+          cpu_freq_incr_margin = fc.cpu_freq_change % 100;
+}
+
+
+static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
+                                        int dma_chan,tmp_change tc,freq_change fc,usage_change uc){
+
+    for(uint16_t change = 0;change < render_frameNum;change++)
+    {
+       if(change == 0)
+            DynamicRendering_INIT(uc,fc,tc,resce);
 
         c_progress  = resce[RESC_PRE].cpu.core_usage + c * c_sign;
         g_progress  = resce[RESC_PRE].gpu.core_usage + g * g_sign;
@@ -193,15 +196,14 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         tc_progress = resce[RESC_PRE].cpu.tmp + t_c * tc_sign;
         tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
-        freq_after_incr += freq_incr_each;
-        freq_incr_total =  freq_after_incr + freq_incr_margin_counter * freq_incr_sign;
+        cpu_freq_after_incr += cpu_freq_incr_each;
+        cpu_freq_incr_total =  cpu_freq_after_incr + cpu_freq_incr_margin_counter * freq_incr_sign;
 
-        freq_ones_place   = freq_incr_total % 10; 
-        freq_tens_place   = freq_incr_total / 10 % 10; 
-        freq_hundre_place = freq_incr_total / 100 % 10; 
-        freq_thousand_place = floor((float)freq_incr_total / 1000); 
+        cpu_freq_ones_place   = cpu_freq_incr_total % 10; 
+        cpu_freq_tens_place   = cpu_freq_incr_total / 10 % 10; 
+        cpu_freq_hundre_place = cpu_freq_incr_total / 100 % 10; 
+        cpu_freq_thousand_place = cpu_freq_incr_total / 1000; 
 
-        printf("freq_incr_total:%d\n",freq_incr_total);
 
         checkAndIncrement(&c, uc.cpu_usage_change);
         checkAndIncrement(&g, uc.gpu_usage_change);
@@ -209,15 +211,15 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         checkAndIncrement(&r, uc.ram_usage_change);
         checkAndIncrement(&t_c, tc.cpu_tmp_change);
         checkAndIncrement(&t_g, tc.gpu_tmp_change);
-        checkAndIncrement(&freq_incr_margin_counter, freq_incr_margin);
+        checkAndIncrement(&cpu_freq_incr_margin_counter, cpu_freq_incr_margin);
 
         dma_channel_wait_for_finish_blocking(dma_chan);
 
         //CPU FREQ
-        OLED_WriteChar(frame,70,32,freq_ones_place + '0');
-        OLED_WriteChar(frame,62,32,freq_tens_place + '0');
-        OLED_WriteChar(frame,54,32,freq_hundre_place + '0' );
-        OLED_WriteChar(frame,46,32,freq_thousand_place + '0');
+        OLED_WriteChar(frame,70,32,cpu_freq_ones_place + '0');
+        OLED_WriteChar(frame,62,32,cpu_freq_tens_place + '0');
+        OLED_WriteChar(frame,54,32,cpu_freq_hundre_place + '0' );
+        OLED_WriteChar(frame,46,32,cpu_freq_thousand_place + '0');
 
         // CPU
         Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);

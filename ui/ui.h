@@ -13,16 +13,16 @@ static int_fast16_t vr;
 static int_fast16_t t_c; // CPU temperature
 static int_fast16_t t_g; // GPU temperature
 
-static int_fast16_t freq_incr_each;
-static int_fast16_t freq_incr_margin; 
-static int_fast16_t freq_after_incr;
-static int_fast16_t freq_after_incr_margin;
-static int_fast16_t freq_incr_total;
-static int_fast16_t freq_incr_margin_counter;  //each increse 1 to deal with margin
-static int_fast16_t freq_ones_place;
-static int_fast16_t freq_tens_place;   
-static int_fast16_t freq_hundre_place; 
-static int_fast16_t freq_thousand_place;
+static int_fast16_t cpu_freq_incr_each;
+static int_fast16_t cpu_freq_incr_margin; 
+static int_fast16_t cpu_freq_after_incr;
+static int_fast16_t cpu_freq_after_incr_margin;
+static int_fast16_t cpu_freq_incr_total;
+static int_fast16_t cpu_freq_incr_margin_counter;  //each increse 1 to deal with margin
+static int_fast16_t cpu_freq_ones_place;
+static int_fast16_t cpu_freq_tens_place;   
+static int_fast16_t cpu_freq_hundre_place; 
+static int_fast16_t cpu_freq_thousand_place;
 
 static int_fast16_t c_progress;
 static int_fast16_t g_progress;
@@ -44,6 +44,7 @@ static inline void Draw_ProgressBar(uint8_t *frame, uint8_t x, uint8_t y, uint8_
 static inline void Draw_preFrameNum(uint8_t *frame, uint8_t *p_digit, resource *resce);
 static inline void Draw_preFrameBar(uint8_t *frame,resource *resce);
 
+static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_change tc,resource *resce);
 static inline void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
                                         int dma_chan,tmp_change tc,freq_change fc,usage_change uc);
 
