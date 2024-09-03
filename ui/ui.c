@@ -151,29 +151,10 @@ static inline void Draw_preFrameBar(uint8_t *frame,resource *resce){
     Draw_ProgressBar(frame,27,16, OLED_WIDTH, 16, resce[RESC_PRE].ram.ram_usage);
 }
 
-void Render_ResPage(uint8_t *frame,resource *resce){
+static inline void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
+                                        int dma_chan,tmp_change tc,freq_change fc,usage_change uc){
 
-    Cal_resUsage(resce,RESC_CUR);
-    Cal_resUsage(resce,RESC_PRE);
-
-    tmp_change   tc = Cal_resTmpChange(resce); 
-    freq_change  fc = Cal_resFreqChange(resce); 
-    usage_change uc = Cal_resUsageChange(resce);
-
-    int dma_chan = frame_copy_dma(frame,frame_template,DMA_CHAN_UNSET);
-
-    uint8_t *p_digit = Cal_digit_mod(resce);
-
-    dma_channel_wait_for_finish_blocking(dma_chan);
-
-    Draw_preFrameBar(frame,resce);
-    Draw_preFrameNum(frame,p_digit,resce);
-
-    OLED_RenderFrame_DMA(frame);
-
-    uint8_t render_frameNum = 100;
-
-    for(uint16_t change = 0;;change++)
+    for(uint16_t change = 0;change <= render_frameNum;change++)
     {
        if(change == 0){
           c = 0;
@@ -243,15 +224,36 @@ void Render_ResPage(uint8_t *frame,resource *resce){
 
             break;
         }
-
-        if(change <= render_frameNum){
             OLED_RenderFrame_DMA(frame);
             frame_copy_dma(frame,frame_template,dma_chan);
-        }else{
-            dma_channel_wait_for_finish_blocking(dma_chan);
-            dma_channel_cleanup(dma_chan);
-            dma_channel_unclaim(dma_chan);
-            break;
-         }
    }
+}
+
+void Render_ResPage(uint8_t *frame,resource *resce){
+
+    Cal_resUsage(resce,RESC_CUR);
+    Cal_resUsage(resce,RESC_PRE);
+
+    tmp_change   tc = Cal_resTmpChange(resce); 
+    freq_change  fc = Cal_resFreqChange(resce); 
+    usage_change uc = Cal_resUsageChange(resce);
+
+    int dma_chan = frame_copy_dma(frame,frame_template,DMA_CHAN_UNSET);
+
+    uint8_t *p_digit = Cal_digit_mod(resce);
+
+    dma_channel_wait_for_finish_blocking(dma_chan);
+
+    Draw_preFrameBar(frame,resce);
+    Draw_preFrameNum(frame,p_digit,resce);
+
+    OLED_RenderFrame_DMA(frame);
+
+    uint8_t render_frameNum = 100;
+    
+    DynamicRendering(frame,render_frameNum,resce,dma_chan,tc,fc,uc);
+
+    dma_channel_wait_for_finish_blocking(dma_chan);
+    dma_channel_cleanup(dma_chan);
+    dma_channel_unclaim(dma_chan);
 }
