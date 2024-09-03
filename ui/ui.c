@@ -171,7 +171,7 @@ void Render_ResPage(uint8_t *frame,resource *resce){
 
     OLED_RenderFrame_DMA(frame);
 
-    uint8_t abs_max_usageChange = getResourceChangeMax_abs(uc,tc);
+    uint8_t render_frameNum = 100;
 
     for(uint16_t change = 0;;change++)
     {
@@ -197,7 +197,7 @@ void Render_ResPage(uint8_t *frame,resource *resce){
         tc_progress = resce[RESC_PRE].cpu.tmp  + t_c * tc_sign;
         tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
-        for (; change <= abs_max_usageChange;)
+        for (; change <= render_frameNum;)
         {
             if (c <= abs(uc.cpu_usage_change) && uc.cpu_usage_change)
                 c++;
@@ -244,7 +244,7 @@ void Render_ResPage(uint8_t *frame,resource *resce){
             break;
         }
 
-        if(change <= abs_max_usageChange){
+        if(change <= render_frameNum){
             OLED_RenderFrame_DMA(frame);
             frame_copy_dma(frame,frame_template,dma_chan);
         }else{
@@ -253,6 +253,5 @@ void Render_ResPage(uint8_t *frame,resource *resce){
             dma_channel_unclaim(dma_chan);
             break;
          }
-        sleep_ms(1);
    }
 }
