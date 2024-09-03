@@ -3,6 +3,9 @@
 
 #include<stdint.h>
 
+#define RESC_CUR  1
+#define RESC_PRE  0
+
 typedef struct 
 {
     uint16_t freq;

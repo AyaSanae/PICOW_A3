@@ -10,9 +10,6 @@
 
 #include <stdio.h>
 
-#define RESC_CUR  1
-#define RESC_PRE  0
-
 static inline void Draw_ProgressBar(uint8_t *frame,uint8_t x,uint8_t y,uint8_t x1,uint8_t y1,int8_t progress){
     assert(progress <= 100 && progress >= 0);
 
