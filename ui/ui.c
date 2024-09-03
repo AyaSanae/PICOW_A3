@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include "frame_template.h"
 #include "hardware/dma.h"
+#include "math.h"
 
 #include <stdio.h>
 
@@ -39,8 +40,8 @@ static inline usage_change Cal_resUsageChange(resource *resce){
 
 static inline freq_change Cal_resFreqChange(resource *resce){
     freq_change fc;
-    fc.cpu_freq_change = resce[RESC_CUR].cpu.freq_cur - resce[RESC_PRE].cpu.freq_cur; 
-    fc.gpu_freq_change = resce[RESC_CUR].gpu.freq_cur - resce[RESC_PRE].gpu.freq_cur; 
+    fc.cpu_freq_change = (int16_t)resce[RESC_CUR].cpu.freq_cur - resce[RESC_PRE].cpu.freq_cur; 
+    fc.gpu_freq_change = (int16_t)resce[RESC_CUR].gpu.freq_cur - resce[RESC_PRE].gpu.freq_cur; 
     fc.ram_change      = resce[RESC_CUR].ram.ram_cur  - resce[RESC_PRE].ram.ram_cur; 
     fc.vram_change     = resce[RESC_CUR].gpu.vram_cur  - resce[RESC_PRE].gpu.vram_cur; 
 
@@ -49,8 +50,8 @@ static inline freq_change Cal_resFreqChange(resource *resce){
 
 static inline tmp_change Cal_resTmpChange(resource *resce){
     tmp_change tp;
-    tp.cpu_tmp_change = resce[RESC_CUR].cpu.tmp - resce[RESC_PRE].cpu.tmp;
-    tp.gpu_tmp_change = resce[RESC_CUR].gpu.tmp - resce[RESC_PRE].gpu.tmp;
+    tp.cpu_tmp_change = (int16_t)resce[RESC_CUR].cpu.tmp - resce[RESC_PRE].cpu.tmp;
+    tp.gpu_tmp_change = (int16_t)resce[RESC_CUR].gpu.tmp - resce[RESC_PRE].gpu.tmp;
 
     return tp;
 }
@@ -125,10 +126,10 @@ static inline void Draw_preFrameNum(uint8_t *frame,uint8_t *p_digit,resource *re
     OLED_WriteChar(frame,120,41,p_digit[11]);
 
     //CPU_FREQ
-    OLED_WriteChar(frame,46,32,p_digit[12]);
-    OLED_WriteChar(frame,54,32,p_digit[13]);
-    OLED_WriteChar(frame,61,32,p_digit[14]);
-    OLED_WriteChar(frame,69,32,p_digit[15]);
+    OLED_WriteChar(frame,47,32,p_digit[12]);
+    OLED_WriteChar(frame,55,32,p_digit[13]);
+    OLED_WriteChar(frame,62,32,p_digit[14]);
+    OLED_WriteChar(frame,70,32,p_digit[15]);
 
     //GPU_FREQ
     OLED_WriteChar(frame,46,40,p_digit[16]);
@@ -149,7 +150,7 @@ static inline void Draw_preFrameBar(uint8_t *frame,resource *resce){
 }
 
 static inline void checkAndIncrement(int *counter, int change){
-    if (*counter <= abs(change) && change) {
+    if (*counter < abs(change) && change) {
         (*counter)++;
     }
 }
@@ -157,21 +158,32 @@ static inline void checkAndIncrement(int *counter, int change){
 static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *resce,
                                         int dma_chan,tmp_change tc,freq_change fc,usage_change uc){
 
-    for(uint16_t change = 0;change <= render_frameNum;change++)
+    for(uint16_t change = 0;change < render_frameNum;change++)
     {
        if(change == 0){
+          //COUNTER INIT
           c = 0;
           g = 0;
           r = 0;
           vr = 0;
           t_c  = 0;
           t_g  = 0;
+          freq_incr_margin_counter = 0;
+
+          //CHANGE SIGN INIT
           c_sign = (uc.cpu_usage_change >= 0) ? 1 : -1; 
           g_sign = (uc.gpu_usage_change >= 0) ? 1 : -1; 
           r_sign = (uc.ram_usage_change >= 0) ? 1 : -1; 
           vr_sign = (uc.vram_usage_change >= 0) ? 1 : -1;
           tc_sign  = (tc.cpu_tmp_change >= 0) ? 1 : -1;
           tg_sign  = (tc.gpu_tmp_change >= 0) ? 1 : -1;
+          freq_incr_sign = (fc.cpu_freq_change >= 0) ? 1 : -1;
+
+          //CPU FREQ INCR INIT
+          freq_incr_total = 0;
+          freq_after_incr = resce[RESC_PRE].cpu.freq_cur;
+          freq_incr_each = fc.cpu_freq_change / 100;
+          freq_incr_margin = fc.cpu_freq_change % 100;
         }
 
         c_progress  = resce[RESC_PRE].cpu.core_usage + c * c_sign;
@@ -181,14 +193,31 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         tc_progress = resce[RESC_PRE].cpu.tmp + t_c * tc_sign;
         tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
+        freq_after_incr += freq_incr_each;
+        freq_incr_total =  freq_after_incr + freq_incr_margin_counter * freq_incr_sign;
+
+        freq_ones_place   = freq_incr_total % 10; 
+        freq_tens_place   = freq_incr_total / 10 % 10; 
+        freq_hundre_place = freq_incr_total / 100 % 10; 
+        freq_thousand_place = floor((float)freq_incr_total / 1000); 
+
+        printf("freq_incr_total:%d\n",freq_incr_total);
+
         checkAndIncrement(&c, uc.cpu_usage_change);
         checkAndIncrement(&g, uc.gpu_usage_change);
         checkAndIncrement(&vr, uc.vram_usage_change);
         checkAndIncrement(&r, uc.ram_usage_change);
         checkAndIncrement(&t_c, tc.cpu_tmp_change);
         checkAndIncrement(&t_g, tc.gpu_tmp_change);
+        checkAndIncrement(&freq_incr_margin_counter, freq_incr_margin);
 
         dma_channel_wait_for_finish_blocking(dma_chan);
+
+        //CPU FREQ
+        OLED_WriteChar(frame,70,32,freq_ones_place + '0');
+        OLED_WriteChar(frame,62,32,freq_tens_place + '0');
+        OLED_WriteChar(frame,54,32,freq_hundre_place + '0' );
+        OLED_WriteChar(frame,46,32,freq_thousand_place + '0');
 
         // CPU
         Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);
@@ -219,6 +248,7 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
 
         OLED_RenderFrame_DMA(frame);
         frame_copy_dma(frame, frame_template, dma_chan);
+        sleep_ms(5);
     }
 }
 
