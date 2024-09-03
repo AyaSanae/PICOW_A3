@@ -57,5 +57,11 @@ typedef struct
     int_fast8_t gpu_tmp_change; 
 }tmp_change;
 
+typedef struct{
+    int_fast8_t freq_thousand_place;
+    int_fast8_t freq_hundred_place;
+    int_fast8_t freq_tens_place;
+    int_fast8_t freq_ones_place;
+}freq_digitSeparate;
 
 #endif
