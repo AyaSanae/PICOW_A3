@@ -163,6 +163,7 @@ static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_chan
           t_c  = 0;
           t_g  = 0;
           cpu_freq_incr_margin_counter = 0;
+          gpu_freq_incr_margin_counter = 0;
 
           //CHANGE SIGN INIT
           c_sign = (uc.cpu_usage_change >= 0) ? 1 : -1; 
@@ -171,13 +172,21 @@ static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_chan
           vr_sign = (uc.vram_usage_change >= 0) ? 1 : -1;
           tc_sign  = (tc.cpu_tmp_change >= 0) ? 1 : -1;
           tg_sign  = (tc.gpu_tmp_change >= 0) ? 1 : -1;
-          freq_incr_sign = (fc.cpu_freq_change >= 0) ? 1 : -1;
+          cpu_freq_incr_sign = (fc.cpu_freq_change >= 0) ? 1 : -1;
+          gpu_freq_incr_sign = (fc.gpu_freq_change >= 0) ? 1 : -1;
 
-          //CPU FREQ INCR INIT
+          //CPU FREQ INCREASE INIT
           cpu_freq_incr_total = 0;
           cpu_freq_after_incr = resce[RESC_PRE].cpu.freq_cur;
           cpu_freq_incr_each = fc.cpu_freq_change / 100;
           cpu_freq_incr_margin = fc.cpu_freq_change % 100;
+
+          //GPU FREQ INCREASE INIT
+          gpu_freq_incr_total = 0;
+          gpu_freq_after_incr = resce[RESC_PRE].gpu.freq_cur;
+          gpu_freq_incr_each = fc.gpu_freq_change / 100;
+          gpu_freq_incr_margin = fc.gpu_freq_change % 100;
+
 }
 
 
@@ -196,14 +205,23 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         tc_progress = resce[RESC_PRE].cpu.tmp + t_c * tc_sign;
         tg_progress = resce[RESC_PRE].gpu.tmp + t_g * tg_sign;
 
+        //CPU FREQ INCREASE CAL
         cpu_freq_after_incr += cpu_freq_incr_each;
-        cpu_freq_incr_total =  cpu_freq_after_incr + cpu_freq_incr_margin_counter * freq_incr_sign;
-
+        cpu_freq_incr_total =  cpu_freq_after_incr + cpu_freq_incr_margin_counter * cpu_freq_incr_sign;
+        //GET CPU FREQ EACH NUM;
         cpu_freq_ones_place   = cpu_freq_incr_total % 10; 
         cpu_freq_tens_place   = cpu_freq_incr_total / 10 % 10; 
         cpu_freq_hundre_place = cpu_freq_incr_total / 100 % 10; 
         cpu_freq_thousand_place = cpu_freq_incr_total / 1000; 
 
+        //GPU FREQ INCREASE CAL
+        gpu_freq_after_incr += gpu_freq_incr_each;
+        gpu_freq_incr_total =  gpu_freq_after_incr + gpu_freq_incr_margin_counter * gpu_freq_incr_sign;
+        //GET GlU FREQ EACH NUM;
+        gpu_freq_ones_place   = gpu_freq_incr_total % 10; 
+        gpu_freq_tens_place   = gpu_freq_incr_total / 10 % 10; 
+        gpu_freq_hundre_place = gpu_freq_incr_total / 100 % 10; 
+        gpu_freq_thousand_place = gpu_freq_incr_total / 1000; 
 
         checkAndIncrement(&c, uc.cpu_usage_change);
         checkAndIncrement(&g, uc.gpu_usage_change);
@@ -212,6 +230,7 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         checkAndIncrement(&t_c, tc.cpu_tmp_change);
         checkAndIncrement(&t_g, tc.gpu_tmp_change);
         checkAndIncrement(&cpu_freq_incr_margin_counter, cpu_freq_incr_margin);
+        checkAndIncrement(&gpu_freq_incr_margin_counter, gpu_freq_incr_margin);
 
         dma_channel_wait_for_finish_blocking(dma_chan);
 
@@ -220,6 +239,12 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         OLED_WriteChar(frame,62,32,cpu_freq_tens_place + '0');
         OLED_WriteChar(frame,54,32,cpu_freq_hundre_place + '0' );
         OLED_WriteChar(frame,46,32,cpu_freq_thousand_place + '0');
+
+        //GPU_FREQ
+        OLED_WriteChar(frame,70,40,gpu_freq_ones_place + '0');
+        OLED_WriteChar(frame,62,40,gpu_freq_tens_place + '0');
+        OLED_WriteChar(frame,54,40,gpu_freq_hundre_place + '0' );
+        OLED_WriteChar(frame,46,40,gpu_freq_thousand_place + '0');
 
         // CPU
         Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);
