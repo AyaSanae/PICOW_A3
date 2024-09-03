@@ -34,10 +34,9 @@ static inline int max_abs(int x, int y){
     return (x > y) ? x : y;
 }
 
-uint16_t getResourceChangeMax_abs(usage_change uc,freq_change fc,tmp_change tc){
-    uint16_t uc_max = max_abs(max_abs(max_abs(uc.cpu_usage_change,uc.gpu_usage_change),uc.ram_usage_change),uc.vram_usage_change);
-    uint16_t fc_max = max_abs(max_abs(max_abs(fc.cpu_freq_change,fc.gpu_freq_change),fc.ram_change),fc.vram_change);
-    uint16_t tc_max = max_abs(tc.cpu_tmp_change,tc.gpu_tmp_change);
+uint8_t getResourceChangeMax_abs(usage_change uc,tmp_change tc){
+    uint8_t uc_max = max_abs(max_abs(max_abs(uc.cpu_usage_change,uc.gpu_usage_change),uc.ram_usage_change),uc.vram_usage_change);
+    uint8_t tc_max = max_abs(tc.cpu_tmp_change,tc.gpu_tmp_change);
     
-    return max_abs(uc_max,max_abs(fc_max,tc_max));
+    return max_abs(uc_max,tc_max);
 }

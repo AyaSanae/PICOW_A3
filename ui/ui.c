@@ -171,7 +171,7 @@ void Render_ResPage(uint8_t *frame,resource *resce){
 
     OLED_RenderFrame_DMA(frame);
 
-    uint16_t abs_max_usageChange = getResourceChangeMax_abs(uc,fc,tc);
+    uint8_t abs_max_usageChange = getResourceChangeMax_abs(uc,tc);
 
     for(uint16_t change = 0;;change++)
     {

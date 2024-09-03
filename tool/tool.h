@@ -9,6 +9,6 @@
 int frame_copy_dma(uint8_t *d_frame,uint8_t *s_frame,int dma_chan);
 static inline int max_abs(int x, int y);
 
-uint16_t getResourceChangeMax_abs(usage_change uc,freq_change fc,tmp_change tc);
+uint8_t getResourceChangeMax_abs(usage_change uc,tmp_change tc);
 
 #endif
