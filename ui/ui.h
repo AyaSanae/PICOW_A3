@@ -6,12 +6,12 @@
 #include "resource.h"
 
 //counter--Smooth transitions for displaying various values.
-static int_fast16_t c;   
-static int_fast16_t g;
-static int_fast16_t r;
-static int_fast16_t vr;
-static int_fast16_t t_c; // CPU temperature
-static int_fast16_t t_g; // GPU temperature
+static int_fast16_t cpu_usage_incr_counter;   
+static int_fast16_t gpu_usage_incr_counter;
+static int_fast16_t ram_usage_incr_counter;
+static int_fast16_t vram_usage_incr_counter;
+static int_fast16_t cpu_tmp_incr_counter; // CPU temperature
+static int_fast16_t gpu_tmp_incr_counter; // GPU temperature
 
 //FOR CPU FREQ
 static int_fast16_t cpu_freq_incr_each;
@@ -59,24 +59,13 @@ static int_fast16_t ram_use_ones_place;
 static int_fast16_t ram_use_tens_place;   
 static int_fast16_t ram_use_hundre_place; 
 
-static int_fast16_t c_progress;
-static int_fast16_t g_progress;
-static int_fast16_t r_progress;
-static int_fast16_t vr_progress;
-static int_fast16_t tc_progress;
-static int_fast16_t tg_progress;
+static int_fast16_t cpu_usage_progress;
+static int_fast16_t gpu_usage_progress;
+static int_fast16_t ram_usage_progress;
 
-static int_fast8_t c_sign;
-static int_fast8_t g_sign;
-static int_fast8_t r_sign;
-static int_fast8_t vr_sign;
-static int_fast8_t tc_sign;
-static int_fast8_t tg_sign;
-static int_fast8_t ram_use_incr_sign;
-static int_fast8_t cpu_freq_incr_sign;
-static int_fast8_t gpu_freq_incr_sign;
-static int_fast8_t vram_use_incr_sign;
-
+static int_fast16_t vram_usage_progress;
+static int_fast16_t cpu_tmp_progress;
+static int_fast16_t gpu_tmp_progress;
 
 static inline void Draw_ProgressBar(uint8_t *frame, uint8_t x, uint8_t y, uint8_t x1, uint8_t y1, int8_t progress);
 static inline void Draw_preFrameNum(uint8_t *frame, uint8_t *p_digit, resource *resce);
