@@ -118,40 +118,40 @@ static inline uint8_t* Cal_digit_mod(resource *resce){
 static inline void Draw_preFrameNum(uint8_t *frame,uint8_t *p_digit,resource *resce){
 
     //CPU Usage
-    OLED_WriteChar(frame,88,32,p_digit[0]);
-    OLED_WriteChar(frame,96,32,p_digit[1]);
+    OLED_WriteChar_fix(frame,88,32,p_digit[0]);
+    OLED_WriteChar_fix(frame,96,32,p_digit[1]);
 
     //GPU Usage
-    OLED_WriteChar(frame,88,41,p_digit[2]);
-    OLED_WriteChar(frame,96,41,p_digit[3]);
+    OLED_WriteChar_fix(frame,88,41,p_digit[2]);
+    OLED_WriteChar_fix(frame,96,41,p_digit[3]);
 
     //VRAM Usage
-    OLED_WriteChar(frame,88,48,p_digit[4]);
-    OLED_WriteChar(frame,96,48,p_digit[5]);
+    OLED_WriteChar_fix(frame,88,48,p_digit[4]);
+    OLED_WriteChar_fix(frame,96,48,p_digit[5]);
 
     //RAM Usage
-    OLED_WriteChar(frame,88,56,p_digit[6]);
-    OLED_WriteChar(frame,96,56,p_digit[7]);
+    OLED_WriteChar_fix(frame,88,56,p_digit[6]);
+    OLED_WriteChar_fix(frame,96,56,p_digit[7]);
 
     //CPU_TMP
-    OLED_WriteChar(frame,112,32,p_digit[8]);
-    OLED_WriteChar(frame,120,32,p_digit[9]);
+    OLED_WriteChar_fix(frame,112,32,p_digit[8]);
+    OLED_WriteChar_fix(frame,120,32,p_digit[9]);
 
     //GPU_TMP
-    OLED_WriteChar(frame,112,41,p_digit[10]);
-    OLED_WriteChar(frame,120,41,p_digit[11]);
+    OLED_WriteChar_fix(frame,112,41,p_digit[10]);
+    OLED_WriteChar_fix(frame,120,41,p_digit[11]);
 
     //CPU_FREQ
-    OLED_WriteChar(frame,47,32,p_digit[12]);
-    OLED_WriteChar(frame,55,32,p_digit[13]);
-    OLED_WriteChar(frame,62,32,p_digit[14]);
-    OLED_WriteChar(frame,70,32,p_digit[15]);
+    OLED_WriteChar_fix(frame,47,32,p_digit[12]);
+    OLED_WriteChar_fix(frame,55,32,p_digit[13]);
+    OLED_WriteChar_fix(frame,62,32,p_digit[14]);
+    OLED_WriteChar_fix(frame,70,32,p_digit[15]);
 
     //GPU_FREQ
-    OLED_WriteChar(frame,46,40,p_digit[16]);
-    OLED_WriteChar(frame,54,40,p_digit[17]);
-    OLED_WriteChar(frame,61,40,p_digit[18]);
-    OLED_WriteChar(frame,69,40,p_digit[19]);
+    OLED_WriteChar_fix(frame,46,40,p_digit[16]);
+    OLED_WriteChar_fix(frame,54,40,p_digit[17]);
+    OLED_WriteChar_fix(frame,61,40,p_digit[18]);
+    OLED_WriteChar_fix(frame,69,40,p_digit[19]);
 
     //VRAM USE
     OLED_WriteChar_fix(frame,49,48,p_digit[20]);
@@ -297,16 +297,16 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         dma_channel_wait_for_finish_blocking(dma_chan);
 
         //CPU FREQ
-        OLED_WriteChar(frame,70,32,cpu_freq_ones_place + '0');
-        OLED_WriteChar(frame,62,32,cpu_freq_tens_place + '0');
-        OLED_WriteChar(frame,54,32,cpu_freq_hundre_place + '0' );
-        OLED_WriteChar(frame,46,32,cpu_freq_thousand_place + '0');
+        OLED_WriteChar_fix(frame,72,32,cpu_freq_ones_place + '0');
+        OLED_WriteChar_fix(frame,64,32,cpu_freq_tens_place + '0');
+        OLED_WriteChar_fix(frame,56,32,cpu_freq_hundre_place + '0' );
+        OLED_WriteChar_fix(frame,48,32,cpu_freq_thousand_place + '0');
 
         //GPU_FREQ
-        OLED_WriteChar(frame,70,40,gpu_freq_ones_place + '0');
-        OLED_WriteChar(frame,62,40,gpu_freq_tens_place + '0');
-        OLED_WriteChar(frame,54,40,gpu_freq_hundre_place + '0' );
-        OLED_WriteChar(frame,46,40,gpu_freq_thousand_place + '0');
+        OLED_WriteChar_fix(frame,72,40,gpu_freq_ones_place + '0');
+        OLED_WriteChar_fix(frame,64,40,gpu_freq_tens_place + '0');
+        OLED_WriteChar_fix(frame,56,40,gpu_freq_hundre_place + '0' );
+        OLED_WriteChar_fix(frame,48,40,gpu_freq_thousand_place + '0');
 
         //RAM USE
         OLED_WriteChar_fix(frame,49,56,ram_use_hundre_place + '0');
@@ -323,30 +323,30 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
 
         // CPU
         Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);
-        OLED_WriteChar(frame, 88, 32, ((c_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 96, 32, (c_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 88, 32, ((c_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 96, 32, (c_progress % 10) + '0');
 
         // GPU
         Draw_ProgressBar(frame, 27, 8, OLED_WIDTH, 8, g_progress);
-        OLED_WriteChar(frame, 88, 41, ((g_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 96, 41, (g_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 88, 41, ((g_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 96, 41, (g_progress % 10) + '0');
 
         // VRAM
-        OLED_WriteChar(frame, 88, 48, ((vr_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 96, 48, (vr_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 88, 48, ((vr_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 96, 48, (vr_progress % 10) + '0');
 
         // RAM
         Draw_ProgressBar(frame, 27, 16, OLED_WIDTH, 16, r_progress);
-        OLED_WriteChar(frame, 88, 56, ((r_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 96, 56, (r_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 88, 56, ((r_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 96, 56, (r_progress % 10) + '0');
 
         // CPU_TMP
-        OLED_WriteChar(frame, 112, 32, ((tc_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 120, 32, (tc_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 112, 32, ((tc_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 120, 32, (tc_progress % 10) + '0');
 
         // GPU_TMP
-        OLED_WriteChar(frame, 112, 41, ((tg_progress / 10) % 10) + '0');
-        OLED_WriteChar(frame, 120, 41, (tg_progress % 10) + '0');
+        OLED_WriteChar_fix(frame, 112, 41, ((tg_progress / 10) % 10) + '0');
+        OLED_WriteChar_fix(frame, 120, 41, (tg_progress % 10) + '0');
 
         OLED_RenderFrame_DMA(frame);
         frame_copy_dma(frame, frame_template, dma_chan);
