@@ -5,6 +5,14 @@
 #include "SH1106.h" 
 #include "resource.h"
 
+typedef struct
+{
+   int_fast16_t ones_place;
+   int_fast16_t tens_place;
+   int_fast16_t hundre_place; 
+   int_fast16_t thousand_place;
+}DecimalNum_Components;
+
 //counter--Smooth transitions for displaying various values.
 static int_fast16_t cpu_usage_incr_counter;   
 static int_fast16_t gpu_usage_incr_counter;
@@ -20,10 +28,8 @@ static int_fast16_t cpu_freq_after_incr;
 static int_fast16_t cpu_freq_after_incr_margin;
 static int_fast16_t cpu_freq_incr_total;
 static int_fast16_t cpu_freq_incr_margin_counter;  //each increse 1 to deal with margin
-static int_fast16_t cpu_freq_ones_place;
-static int_fast16_t cpu_freq_tens_place;   
-static int_fast16_t cpu_freq_hundre_place; 
-static int_fast16_t cpu_freq_thousand_place;
+static DecimalNum_Components cpu_freq_DNC;
+
 
 //FOR GPU FREQ
 static int_fast16_t gpu_freq_incr_each;
@@ -32,10 +38,8 @@ static int_fast16_t gpu_freq_after_incr;
 static int_fast16_t gpu_freq_after_incr_margin;
 static int_fast16_t gpu_freq_incr_total;
 static int_fast16_t gpu_freq_incr_margin_counter;  
-static int_fast16_t gpu_freq_ones_place;
-static int_fast16_t gpu_freq_tens_place;   
-static int_fast16_t gpu_freq_hundre_place; 
-static int_fast16_t gpu_freq_thousand_place;
+static DecimalNum_Components gpu_freq_DNC;
+
 
 //FOR VRAM USE
 static int_fast16_t vram_use_incr_each;
@@ -44,9 +48,7 @@ static int_fast16_t vram_use_after_incr;
 static int_fast16_t vram_use_after_incr_margin;
 static int_fast16_t vram_use_incr_total;
 static int_fast16_t vram_use_incr_margin_counter;
-static int_fast16_t vram_use_ones_place;
-static int_fast16_t vram_use_tens_place;   
-static int_fast16_t vram_use_hundre_place; 
+static DecimalNum_Components vram_use_DNC;
 
 //FOR RAM USE
 static int_fast16_t ram_use_incr_each;
@@ -55,14 +57,11 @@ static int_fast16_t ram_use_after_incr;
 static int_fast16_t ram_use_after_incr_margin;
 static int_fast16_t ram_use_incr_total;
 static int_fast16_t ram_use_incr_margin_counter;
-static int_fast16_t ram_use_ones_place;
-static int_fast16_t ram_use_tens_place;   
-static int_fast16_t ram_use_hundre_place; 
+static DecimalNum_Components ram_use_DNC;
 
 static int_fast16_t cpu_usage_progress;
 static int_fast16_t gpu_usage_progress;
 static int_fast16_t ram_usage_progress;
-
 static int_fast16_t vram_usage_progress;
 static int_fast16_t cpu_tmp_progress;
 static int_fast16_t gpu_tmp_progress;

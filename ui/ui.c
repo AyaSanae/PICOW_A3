@@ -194,33 +194,33 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         cpu_freq_after_incr += cpu_freq_incr_each;
         cpu_freq_incr_total =  cpu_freq_after_incr + cpu_freq_incr_margin_counter * ((fc.cpu_freq_change >= 0) ? 1 : -1);
         //GET CPU FREQ EACH NUM;
-        cpu_freq_ones_place   = cpu_freq_incr_total % 10; 
-        cpu_freq_tens_place   = cpu_freq_incr_total / 10 % 10; 
-        cpu_freq_hundre_place = cpu_freq_incr_total / 100 % 10; 
-        cpu_freq_thousand_place = cpu_freq_incr_total / 1000; 
+        cpu_freq_DNC.ones_place     = cpu_freq_incr_total % 10; 
+        cpu_freq_DNC.tens_place     = cpu_freq_incr_total / 10 % 10; 
+        cpu_freq_DNC.hundre_place   = cpu_freq_incr_total / 100 % 10; 
+        cpu_freq_DNC.thousand_place = cpu_freq_incr_total / 1000; 
 
         //GPU FREQ INCREASE CAL
         gpu_freq_after_incr += gpu_freq_incr_each;
         gpu_freq_incr_total =  gpu_freq_after_incr + gpu_freq_incr_margin_counter * ((fc.gpu_freq_change >= 0) ? 1 : -1);
         //GET GlU FREQ EACH NUM;
-        gpu_freq_ones_place   = gpu_freq_incr_total % 10; 
-        gpu_freq_tens_place   = gpu_freq_incr_total / 10 % 10; 
-        gpu_freq_hundre_place = gpu_freq_incr_total / 100 % 10; 
-        gpu_freq_thousand_place = gpu_freq_incr_total / 1000; 
+        gpu_freq_DNC.ones_place   = gpu_freq_incr_total % 10; 
+        gpu_freq_DNC.tens_place   = gpu_freq_incr_total / 10 % 10; 
+        gpu_freq_DNC.hundre_place = gpu_freq_incr_total / 100 % 10; 
+        gpu_freq_DNC.thousand_place = gpu_freq_incr_total / 1000; 
 
         //RAM USE INCREASE CAL
         ram_use_after_incr  += ram_use_incr_each;
         ram_use_incr_total   = ram_use_after_incr + ram_use_incr_margin_counter * ((fc.ram_change >= 0)? 1 : -1);
-        ram_use_ones_place   = ram_use_incr_total % 10; 
-        ram_use_tens_place   = ram_use_incr_total / 10 % 10; 
-        ram_use_hundre_place = ram_use_incr_total / 100 % 10;
+        ram_use_DNC.ones_place   = ram_use_incr_total % 10; 
+        ram_use_DNC.tens_place   = ram_use_incr_total / 10 % 10; 
+        ram_use_DNC.hundre_place = ram_use_incr_total / 100 % 10;
 
         //VRAM USE INCREASE CAL
         vram_use_after_incr  += vram_use_incr_each;
         vram_use_incr_total   = vram_use_after_incr + vram_use_incr_margin_counter * ((fc.vram_change >= 0)? 1 : -1);
-        vram_use_ones_place   = vram_use_incr_total % 10; 
-        vram_use_tens_place   = vram_use_incr_total / 10 % 10; 
-        vram_use_hundre_place = vram_use_incr_total / 100 % 10; 
+        vram_use_DNC.ones_place   = vram_use_incr_total % 10; 
+        vram_use_DNC.tens_place   = vram_use_incr_total / 10 % 10; 
+        vram_use_DNC.hundre_place = vram_use_incr_total / 100 % 10; 
 
 
         checkAndIncrement(&cpu_usage_incr_counter, uc.cpu_usage_change);
@@ -237,26 +237,26 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         dma_channel_wait_for_finish_blocking(dma_chan);
 
         //CPU FREQ
-        OLED_WriteChar_fix(frame,72,32,cpu_freq_ones_place + '0');
-        OLED_WriteChar_fix(frame,64,32,cpu_freq_tens_place + '0');
-        OLED_WriteChar_fix(frame,56,32,cpu_freq_hundre_place + '0' );
-        OLED_WriteChar_fix(frame,48,32,cpu_freq_thousand_place + '0');
+        OLED_WriteChar_fix(frame,72,32,cpu_freq_DNC.ones_place     + '0');
+        OLED_WriteChar_fix(frame,64,32,cpu_freq_DNC.tens_place     + '0');
+        OLED_WriteChar_fix(frame,56,32,cpu_freq_DNC.hundre_place   + '0');
+        OLED_WriteChar_fix(frame,48,32,cpu_freq_DNC.thousand_place + '0');
 
         //GPU_FREQ
-        OLED_WriteChar_fix(frame,72,40,gpu_freq_ones_place + '0');
-        OLED_WriteChar_fix(frame,64,40,gpu_freq_tens_place + '0');
-        OLED_WriteChar_fix(frame,56,40,gpu_freq_hundre_place + '0' );
-        OLED_WriteChar_fix(frame,48,40,gpu_freq_thousand_place + '0');
+        OLED_WriteChar_fix(frame,72,40,gpu_freq_DNC.ones_place     + '0');
+        OLED_WriteChar_fix(frame,64,40,gpu_freq_DNC.tens_place     + '0');
+        OLED_WriteChar_fix(frame,56,40,gpu_freq_DNC.hundre_place   + '0');
+        OLED_WriteChar_fix(frame,48,40,gpu_freq_DNC.thousand_place + '0');
 
         //RAM USE
-        OLED_WriteChar_fix(frame,49,56,ram_use_hundre_place + '0');
-        OLED_WriteChar_fix(frame,57,56,ram_use_tens_place + '0');
-        OLED_WriteChar_fix(frame,66,56,ram_use_ones_place + '0');
+        OLED_WriteChar_fix(frame,49,56,ram_use_DNC.ones_place   + '0');
+        OLED_WriteChar_fix(frame,57,56,ram_use_DNC.tens_place   + '0');
+        OLED_WriteChar_fix(frame,66,56,ram_use_DNC.hundre_place + '0');
 
         //VRAM USE
-        OLED_WriteChar_fix(frame,49,48,vram_use_hundre_place + '0');
-        OLED_WriteChar_fix(frame,57,48,vram_use_tens_place + '0');
-        OLED_WriteChar_fix(frame,66,48,vram_use_ones_place + '0');
+        OLED_WriteChar_fix(frame,49,48,vram_use_DNC.ones_place   + '0');
+        OLED_WriteChar_fix(frame,57,48,vram_use_DNC.tens_place   + '0');
+        OLED_WriteChar_fix(frame,66,48,vram_use_DNC.hundre_place + '0');
 
         // Draw RAM,VRAM USE DECIMAL POINT
         Draw_decimal_point(frame);
