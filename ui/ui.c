@@ -116,52 +116,22 @@ static inline uint8_t* Cal_digit_mod(resource *resce){
 }
 
 static inline void Draw_preFrameNum(uint8_t *frame,uint8_t *p_digit,resource *resce){
+    uint8_t positions[][2] = {
+        {88, 32}, {96, 32}, // CPU Usage
+        {88, 41}, {96, 41}, // GPU Usage
+        {88, 48}, {96, 48}, // VRAM Usage
+        {88, 56}, {96, 56}, // RAM Usage
+        {112, 32}, {120, 32}, // CPU_TMP
+        {112, 41}, {120, 41}, // GPU_TMP
+        {47, 32}, {55, 32}, {62, 32}, {70, 32}, // CPU_FREQ
+        {46, 40}, {54, 40}, {61, 40}, {69, 40}, // GPU_FREQ
+        {49, 48}, {57, 48}, {66, 48}, // VRAM USE
+        {49, 56}, {57, 56}, {66, 56}  // RAM USE
+    };
 
-    //CPU Usage
-    OLED_WriteChar_fix(frame,88,32,p_digit[0]);
-    OLED_WriteChar_fix(frame,96,32,p_digit[1]);
-
-    //GPU Usage
-    OLED_WriteChar_fix(frame,88,41,p_digit[2]);
-    OLED_WriteChar_fix(frame,96,41,p_digit[3]);
-
-    //VRAM Usage
-    OLED_WriteChar_fix(frame,88,48,p_digit[4]);
-    OLED_WriteChar_fix(frame,96,48,p_digit[5]);
-
-    //RAM Usage
-    OLED_WriteChar_fix(frame,88,56,p_digit[6]);
-    OLED_WriteChar_fix(frame,96,56,p_digit[7]);
-
-    //CPU_TMP
-    OLED_WriteChar_fix(frame,112,32,p_digit[8]);
-    OLED_WriteChar_fix(frame,120,32,p_digit[9]);
-
-    //GPU_TMP
-    OLED_WriteChar_fix(frame,112,41,p_digit[10]);
-    OLED_WriteChar_fix(frame,120,41,p_digit[11]);
-
-    //CPU_FREQ
-    OLED_WriteChar_fix(frame,47,32,p_digit[12]);
-    OLED_WriteChar_fix(frame,55,32,p_digit[13]);
-    OLED_WriteChar_fix(frame,62,32,p_digit[14]);
-    OLED_WriteChar_fix(frame,70,32,p_digit[15]);
-
-    //GPU_FREQ
-    OLED_WriteChar_fix(frame,46,40,p_digit[16]);
-    OLED_WriteChar_fix(frame,54,40,p_digit[17]);
-    OLED_WriteChar_fix(frame,61,40,p_digit[18]);
-    OLED_WriteChar_fix(frame,69,40,p_digit[19]);
-
-    //VRAM USE
-    OLED_WriteChar_fix(frame,49,48,p_digit[20]);
-    OLED_WriteChar_fix(frame,57,48,p_digit[21]);
-    OLED_WriteChar_fix(frame,66,48,p_digit[22]);
-
-    //RAM USE
-    OLED_WriteChar_fix(frame,49,56,p_digit[23]);
-    OLED_WriteChar_fix(frame,57,56,p_digit[24]);
-    OLED_WriteChar_fix(frame,66,56,p_digit[25]);
+    for (size_t i = 0; i < sizeof(positions) / sizeof(positions[0]); ++i) {
+        OLED_WriteChar_fix(frame, positions[i][0], positions[i][1], p_digit[i]);
+    }
 
     Draw_decimal_point(frame);
 
