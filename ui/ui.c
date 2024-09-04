@@ -20,6 +20,11 @@ static inline void Draw_ProgressBar(uint8_t *frame,uint8_t x,uint8_t y,uint8_t x
         memset(frame + start, 0xff, p);
 }
 
+static inline void Draw_decimal_point(uint8_t * frame){
+    OLED_setPixel(frame,64,55,1);
+    OLED_setPixel(frame,64,63,1);
+}
+
 static inline void Cal_resUsage(resource *resce,uint8_t time){
     resce[time].cpu.core_usage =  ((float)resce[time].cpu.freq_cur / resce[time].cpu.freq) * 100; 
     resce[time].gpu.core_usage =  ((float)resce[time].gpu.freq_cur / resce[time].gpu.freq) * 100; 
@@ -56,7 +61,7 @@ static inline tmp_change Cal_resTmpChange(resource *resce){
 }
 
 static inline uint8_t* Cal_digit_mod(resource *resce){
-    uint8_t *p = malloc(20 * sizeof(uint8_t));
+    uint8_t *p = malloc(26 * sizeof(uint8_t));
     assert(*p != NULL);
 
     //CPU usage
@@ -94,6 +99,18 @@ static inline uint8_t* Cal_digit_mod(resource *resce){
     p[17] = (resce[RESC_PRE].gpu.freq_cur / 100) % 10 + '0'; 
     p[18] = (resce[RESC_PRE].gpu.freq_cur / 10) % 10 + '0';
     p[19] = resce[RESC_PRE].gpu.freq_cur % 10 + '0';
+
+    //VRAM use
+    //Convert the floating-point number to an integer for easier rendering on the frame
+    uint16_t vram_float2int = resce[RESC_PRE].gpu.vram_cur * 10;
+    p[20] = (vram_float2int / 100) % 10 + '0';
+    p[21] = (vram_float2int / 10) % 10 + '0';
+    p[22] = vram_float2int % 10 + '0';
+
+    uint16_t ram_float2int = resce[RESC_PRE].ram.ram_cur * 10;
+    p[23] = (ram_float2int / 100) % 10 + '0';
+    p[24] = (ram_float2int / 10) % 10 + '0';
+    p[25] = ram_float2int % 10 + '0';
 
     return p;
 }
@@ -136,6 +153,18 @@ static inline void Draw_preFrameNum(uint8_t *frame,uint8_t *p_digit,resource *re
     OLED_WriteChar(frame,61,40,p_digit[18]);
     OLED_WriteChar(frame,69,40,p_digit[19]);
 
+    //VRAM USE
+    OLED_WriteChar_fix(frame,49,48,p_digit[20]);
+    OLED_WriteChar_fix(frame,57,48,p_digit[21]);
+    OLED_WriteChar_fix(frame,66,48,p_digit[22]);
+
+    //RAM USE
+    OLED_WriteChar_fix(frame,49,56,p_digit[23]);
+    OLED_WriteChar_fix(frame,57,56,p_digit[24]);
+    OLED_WriteChar_fix(frame,66,56,p_digit[25]);
+
+    Draw_decimal_point(frame);
+
     free(p_digit);
 }
 
@@ -162,8 +191,10 @@ static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_chan
           vr = 0;
           t_c  = 0;
           t_g  = 0;
+          ram_use_incr_margin_counter = 0;
           cpu_freq_incr_margin_counter = 0;
           gpu_freq_incr_margin_counter = 0;
+          vram_use_incr_margin_counter = 0;
 
           //CHANGE SIGN INIT
           c_sign = (uc.cpu_usage_change >= 0) ? 1 : -1; 
@@ -172,6 +203,8 @@ static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_chan
           vr_sign = (uc.vram_usage_change >= 0) ? 1 : -1;
           tc_sign  = (tc.cpu_tmp_change >= 0) ? 1 : -1;
           tg_sign  = (tc.gpu_tmp_change >= 0) ? 1 : -1;
+          ram_use_incr_sign = (fc.ram_change >= 0)? 1 : -1; 
+          vram_use_incr_sign = (fc.vram_change >= 0)? 1 : -1; 
           cpu_freq_incr_sign = (fc.cpu_freq_change >= 0) ? 1 : -1;
           gpu_freq_incr_sign = (fc.gpu_freq_change >= 0) ? 1 : -1;
 
@@ -186,6 +219,18 @@ static inline void DynamicRendering_INIT(usage_change uc,freq_change fc,tmp_chan
           gpu_freq_after_incr = resce[RESC_PRE].gpu.freq_cur;
           gpu_freq_incr_each = fc.gpu_freq_change / 100;
           gpu_freq_incr_margin = fc.gpu_freq_change % 100;
+
+          //VRAM USE INCREASE INIT
+          vram_use_incr_total = 0;
+          vram_use_after_incr = (int_fast16_t)(resce[RESC_PRE].gpu.vram_cur * 10);
+          vram_use_incr_each = ((int_fast16_t)(fc.vram_change * 10)) / 100;
+          vram_use_incr_margin = ((int_fast16_t)(fc.vram_change * 10)) % 100;
+
+          //RAM USE INCREASE INIT
+          ram_use_incr_total = 0;
+          ram_use_after_incr = (int_fast16_t)(resce[RESC_PRE].ram.ram_cur * 10);
+          ram_use_incr_each = ((int_fast16_t)(fc.ram_change * 10)) / 100;
+          ram_use_incr_margin = ((int_fast16_t)(fc.ram_change * 10)) % 100;
 
 }
 
@@ -223,6 +268,21 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         gpu_freq_hundre_place = gpu_freq_incr_total / 100 % 10; 
         gpu_freq_thousand_place = gpu_freq_incr_total / 1000; 
 
+        //RAM USE INCREASE CAL
+        ram_use_after_incr  += ram_use_incr_each;
+        ram_use_incr_total   = ram_use_after_incr + ram_use_incr_margin_counter * ram_use_incr_sign;
+        ram_use_ones_place   = ram_use_incr_total % 10; 
+        ram_use_tens_place   = ram_use_incr_total / 10 % 10; 
+        ram_use_hundre_place = ram_use_incr_total / 100 % 10;
+
+        //VRAM USE INCREASE CAL
+        vram_use_after_incr  += vram_use_incr_each;
+        vram_use_incr_total   = vram_use_after_incr + vram_use_incr_margin_counter * vram_use_incr_sign;
+        vram_use_ones_place   = vram_use_incr_total % 10; 
+        vram_use_tens_place   = vram_use_incr_total / 10 % 10; 
+        vram_use_hundre_place = vram_use_incr_total / 100 % 10; 
+
+
         checkAndIncrement(&c, uc.cpu_usage_change);
         checkAndIncrement(&g, uc.gpu_usage_change);
         checkAndIncrement(&vr, uc.vram_usage_change);
@@ -231,6 +291,8 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         checkAndIncrement(&t_g, tc.gpu_tmp_change);
         checkAndIncrement(&cpu_freq_incr_margin_counter, cpu_freq_incr_margin);
         checkAndIncrement(&gpu_freq_incr_margin_counter, gpu_freq_incr_margin);
+        checkAndIncrement(&vram_use_incr_margin_counter, vram_use_incr_margin);
+        checkAndIncrement(&ram_use_incr_margin_counter,  ram_use_incr_margin);
 
         dma_channel_wait_for_finish_blocking(dma_chan);
 
@@ -245,6 +307,19 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
         OLED_WriteChar(frame,62,40,gpu_freq_tens_place + '0');
         OLED_WriteChar(frame,54,40,gpu_freq_hundre_place + '0' );
         OLED_WriteChar(frame,46,40,gpu_freq_thousand_place + '0');
+
+        //RAM USE
+        OLED_WriteChar_fix(frame,49,56,ram_use_hundre_place + '0');
+        OLED_WriteChar_fix(frame,57,56,ram_use_tens_place + '0');
+        OLED_WriteChar_fix(frame,66,56,ram_use_ones_place + '0');
+
+        //VRAM USE
+        OLED_WriteChar_fix(frame,49,48,vram_use_hundre_place + '0');
+        OLED_WriteChar_fix(frame,57,48,vram_use_tens_place + '0');
+        OLED_WriteChar_fix(frame,66,48,vram_use_ones_place + '0');
+
+        // Draw RAM,VRAM USE DECIMAL POINT
+        Draw_decimal_point(frame);
 
         // CPU
         Draw_ProgressBar(frame, 27, 0, OLED_WIDTH, 0, c_progress);
@@ -275,7 +350,6 @@ static void DynamicRendering(uint8_t *frame,uint8_t render_frameNum,resource *re
 
         OLED_RenderFrame_DMA(frame);
         frame_copy_dma(frame, frame_template, dma_chan);
-        sleep_ms(5);
     }
 }
 
