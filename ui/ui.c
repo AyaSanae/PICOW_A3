@@ -63,54 +63,31 @@ static inline tmp_change Cal_resTmpChange(resource *resce){
 static inline uint8_t* Cal_digit_mod(resource *resce){
     uint8_t *p = malloc(26 * sizeof(uint8_t));
     assert(*p != NULL);
+    struct
+    {
+        uint16_t value;
+        size_t start_index;
+        size_t num_digits;
+    } values[] = {
+        {resce[RESC_PRE].cpu.core_usage, 0, 2},                 // CPU usage
+        {resce[RESC_PRE].gpu.core_usage, 2, 2},                 // GPU usage
+        {resce[RESC_PRE].gpu.vram_usage, 4, 2},                 // VRAM usage
+        {resce[RESC_PRE].ram.ram_usage, 6, 2},                  // RAM usage
+        {resce[RESC_PRE].cpu.tmp, 8, 2},                        // CPU TMP
+        {resce[RESC_PRE].gpu.tmp, 10, 2},                       // GPU TMP
+        {resce[RESC_PRE].cpu.freq_cur, 12, 4},                  // CPU FREQ
+        {resce[RESC_PRE].gpu.freq_cur, 16, 4},                  // GPU FREQ
+        {(uint16_t)(resce[RESC_PRE].gpu.vram_cur * 10), 20, 3}, // VRAM use
+        {(uint16_t)(resce[RESC_PRE].ram.ram_cur * 10), 23, 3}   // RAM use
+    };
 
-    //CPU usage
-    p[0] = (resce[RESC_PRE].cpu.core_usage / 10) % 10 + '0';
-    p[1] = (resce[RESC_PRE].cpu.core_usage  % 10) + '0';
-
-    //GPU usage
-    p[2] = ((resce[RESC_PRE].gpu.core_usage / 10) % 10 ) + '0';
-    p[3] = (resce[RESC_PRE].gpu.core_usage  % 10) + '0';
-
-    //VRAM usage
-    p[4] = ((resce[RESC_PRE].gpu.vram_usage / 10) % 10 ) + '0';
-    p[5] = (resce[RESC_PRE].gpu.vram_usage  % 10) + '0';
-
-    //RAM usage
-    p[6] = ((resce[RESC_PRE].ram.ram_usage / 10) % 10 ) + '0';
-    p[7] = (resce[RESC_PRE].ram.ram_usage  % 10) + '0';
-
-    //CPU TMP
-    p[8] = ((resce[RESC_PRE].cpu.tmp / 10) % 10) + '0';
-    p[9] = ((resce[RESC_PRE].cpu.tmp ) % 10) + '0';
-
-    //GPU TMP
-    p[10] = ((resce[RESC_PRE].gpu.tmp / 10) % 10) + '0';
-    p[11] = ((resce[RESC_PRE].gpu.tmp ) % 10) + '0';
-
-    //CPU FREQ
-    p[12] = (resce[RESC_PRE].cpu.freq_cur / 1000) % 10 + '0';
-    p[13] = (resce[RESC_PRE].cpu.freq_cur / 100) % 10 + '0';
-    p[14] = (resce[RESC_PRE].cpu.freq_cur / 10) % 10 + '0';
-    p[15] = resce[RESC_PRE].cpu.freq_cur % 10 + '0';
-
-    //GPU FREQ
-    p[16] = (resce[RESC_PRE].gpu.freq_cur / 1000) % 10 + '0';
-    p[17] = (resce[RESC_PRE].gpu.freq_cur / 100) % 10 + '0'; 
-    p[18] = (resce[RESC_PRE].gpu.freq_cur / 10) % 10 + '0';
-    p[19] = resce[RESC_PRE].gpu.freq_cur % 10 + '0';
-
-    //VRAM use
-    //Convert the floating-point number to an integer for easier rendering on the frame
-    uint16_t vram_float2int = resce[RESC_PRE].gpu.vram_cur * 10;
-    p[20] = (vram_float2int / 100) % 10 + '0';
-    p[21] = (vram_float2int / 10) % 10 + '0';
-    p[22] = vram_float2int % 10 + '0';
-
-    uint16_t ram_float2int = resce[RESC_PRE].ram.ram_cur * 10;
-    p[23] = (ram_float2int / 100) % 10 + '0';
-    p[24] = (ram_float2int / 10) % 10 + '0';
-    p[25] = ram_float2int % 10 + '0';
+    for (size_t i = 0; i < sizeof(values) / sizeof(values[0]); ++i)
+    {
+        for (size_t j = 0; j < values[i].num_digits; ++j)
+        {
+            p[values[i].start_index + j] = (values[i].value / (1 << (j * 4))) % 10 + '0'; // 每位的计算
+        }
+    }
 
     return p;
 }
