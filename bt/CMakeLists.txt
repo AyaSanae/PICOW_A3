@@ -9,6 +9,8 @@ target_include_directories(bt PUBLIC
 
 target_link_libraries(bt
     pico_stdlib
+    pico_sync
+    pico_util
     pico_btstack_classic
     pico_btstack_cyw43
     pico_cyw43_arch_none

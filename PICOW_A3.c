@@ -1,5 +1,6 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+#include "pico/multicore.h"
 #include <stdio.h>
 
 #include <stdlib.h>
@@ -23,7 +24,7 @@ int main()
 {
   stdio_init_all();
   cyw43_arch_init();
-
+  multicore_launch_core1(btstack_run_core1);
   i2c_init(i2c0, OLED_BAUD);
   gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
   gpio_set_function(PIN_SDA, GPIO_FUNC_I2C);

@@ -65,6 +65,9 @@ target_include_directories(PICOW_A3 PRIVATE
 # Add any user requested libraries
 target_link_libraries(PICOW_A3 
         pico_cyw43_arch_none
+        pico_multicore
+        pico_sync
+        pico_util
         SH1106
         ui
         tool
