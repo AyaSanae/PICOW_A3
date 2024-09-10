@@ -8,11 +8,21 @@
 #include "resource.h"
 #include "frame_template.h"
 
+#include "pico/cyw43_arch.h"
+#include "btstack_run_loop.h"
+
 resource resc[2];
+
+int btstack_main(int argc, const char * argv[]);
+void btstack_run_core1(){
+  btstack_main(0, NULL);
+  btstack_run_loop_execute();
+}
 
 int main()
 {
   stdio_init_all();
+  cyw43_arch_init();
 
   i2c_init(i2c0, OLED_BAUD);
   gpio_set_function(PIN_SCL, GPIO_FUNC_I2C);
