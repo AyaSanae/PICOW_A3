@@ -45,10 +45,13 @@
  
 #include "btstack.h"
 
+#include "pico/util/queue.h"
+#include "spp.h"
+
 #define RFCOMM_SERVER_CHANNEL 1
 #define HEARTBEAT_PERIOD_MS 50
 
-static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *packet, uint16_t size);
+queue_t queue_RescMasgPack_Handler;
 
 static uint16_t rfcomm_channel_id;
 static uint8_t  spp_service_buffer[150];
@@ -71,14 +74,8 @@ static void spp_service_setup(void){
 }
 
 static btstack_timer_source_t heartbeat;
-static char lineBuffer[30];
 static void  heartbeat_handler(struct btstack_timer_source *ts){
-    static int counter = 0;
-
     if (rfcomm_channel_id){
-        snprintf(lineBuffer, sizeof(lineBuffer), "BTstack counter %04u\n", ++counter);
-        printf("%s", lineBuffer);
-
         rfcomm_request_can_send_now_event(rfcomm_channel_id);
     }
 
@@ -132,7 +129,6 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                     }
                     break;
                 case RFCOMM_EVENT_CAN_SEND_NOW:
-                    rfcomm_send(rfcomm_channel_id, (uint8_t*) lineBuffer, (uint16_t) strlen(lineBuffer));  
                     break;
 
                 case RFCOMM_EVENT_CHANNEL_CLOSED:
@@ -146,11 +142,18 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
             break;
 
         case RFCOMM_DATA_PACKET:
-            printf("RCV: '");
-            for (i=0;i<size;i++){
-                putchar(packet[i]);
-            }
-            printf("'\n");
+            switch (packet[0]){
+            case RESOURCE_MASG_PACK:
+                if(size - 1 == RESC_QUEUE_SIZE && queue_is_empty(&queue_RescMasgPack_Handler)){
+                    for(int i = 1; i < RESC_QUEUE_SIZE + 1; i++){
+                        queue_add_blocking(&queue_RescMasgPack_Handler,packet + i);
+                    }   
+                }
+                    break;
+             default:
+                printf("invalid value");
+                break;
+             }
             break;
 
         default:
@@ -158,10 +161,11 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
     }
 }
 
-int btstack_main(int argc, const char * argv[]);
 int btstack_main(int argc, const char * argv[]){
     (void)argc;
     (void)argv;
+
+    queue_init(&queue_RescMasgPack_Handler,sizeof(uint8_t),RESC_QUEUE_SIZE);
 
     one_shot_timer_setup();
     spp_service_setup();

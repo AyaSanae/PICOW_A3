@@ -1,5 +1,6 @@
 add_library(bt STATIC
     spp.c
+    spp.h
     )
 
 target_include_directories(bt PUBLIC
