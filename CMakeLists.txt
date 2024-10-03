@@ -41,7 +41,7 @@ pico_enable_stdio_uart(PICOW_A3 0)
 pico_enable_stdio_usb(PICOW_A3 1)
 
 add_subdirectory(SH1106)
-add_subdirectory(ui)
+add_subdirectory(render)
 add_subdirectory(tool)
 add_subdirectory(bt)
 # Add the standard library to the build
@@ -56,8 +56,8 @@ target_include_directories(PICOW_A3 PRIVATE
   ${CMAKE_CURRENT_LIST_DIR}
   ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
   ${CMAKE_SOURCE_DIR}/include
+  resource_page 
   SH1106
-  ui
   tool
   bt
 )
@@ -66,10 +66,10 @@ target_include_directories(PICOW_A3 PRIVATE
 target_link_libraries(PICOW_A3 
         pico_cyw43_arch_none
         pico_multicore
+        resource_page
         pico_sync
         pico_util
         SH1106
-        ui
         tool
         bt
         )

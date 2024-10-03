@@ -3,7 +3,7 @@
 #include "pico/multicore.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include "ui.h" 
+#include "render/resource_page/resource_page.h" 
 #include <math.h>
 #include "resource.h"
 #include "frame_template.h"
