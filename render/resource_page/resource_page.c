@@ -1,4 +1,4 @@
-#include "ui.h"
+#include "resource_page.h"
 #include <string.h>
 #include "pico/stdlib.h"
 #include "SH1106.h" 

@@ -1,5 +1,5 @@
-#ifndef __ui
-#define __ui
+#ifndef __resource_page__
+#define __resource_page__
 
 #include <stdint.h>
 #include "SH1106.h" 
