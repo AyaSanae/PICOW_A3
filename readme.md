@@ -1,5 +1,7 @@
 ## PICOW_A3 -- An embedded desktop decoration
 
+![PICOW_A3](https://s21.ax1x.com/2024/10/16/pANoQLn.jpg)
+
 The PICOW_A3 drives a 1.3-inch OLED display for content display.
 
 For the driving instructions, please refer:[SH1106](https://github.com/AyaSanae/PICO_SH1106)
@@ -19,6 +21,8 @@ If you want to send data to PICOW via Bluetooth yourself, please refer to the fo
 [PACK_DECODE](https://github.com/AyaSanae/PICOW_A3/blob/master/PICOW_A3.c#L63).
 
 You can determine the type of data being sent by recognizing the first byte of the RFCOMM data packet. For example, if packet[0] == 0x00, it will be identified as RESOURCE_MASG_PAC. Please refer to the aforementioned [DATA_TYPE]. The data will be placed in a thread-safe queue since the SPP service runs on CORE1.
+
+You should edit PICO_SDK_PATH and CMAKE_SYSROOT.
 
 ### QuickStart
 ```
