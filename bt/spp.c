@@ -52,6 +52,7 @@
 #define HEARTBEAT_PERIOD_MS 50
 
 queue_t queue_RescMasgPack_Handler;
+queue_t queue_switch_flag;
 
 static uint16_t rfcomm_channel_id;
 static uint8_t  spp_service_buffer[150];
@@ -127,6 +128,8 @@ static void packet_handler (uint8_t packet_type, uint16_t channel, uint8_t *pack
                         mtu = rfcomm_event_channel_opened_get_max_frame_size(packet);
                         printf("RFCOMM channel open succeeded. New RFCOMM Channel ID %u, max frame size %u\n", rfcomm_channel_id, mtu);
                     }
+                    uint8_t switch_to_resourcepage = 1;
+                    queue_add_blocking(&queue_switch_flag,&switch_to_resourcepage);
                     break;
                 case RFCOMM_EVENT_CAN_SEND_NOW:
                     break;
@@ -166,6 +169,7 @@ int btstack_main(int argc, const char * argv[]){
     (void)argv;
 
     queue_init(&queue_RescMasgPack_Handler,sizeof(uint8_t),RESC_QUEUE_SIZE);
+    queue_init(&queue_switch_flag,sizeof(uint8_t),1);
 
     one_shot_timer_setup();
     spp_service_setup();

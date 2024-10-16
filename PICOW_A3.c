@@ -1,12 +1,15 @@
+#include "SH1106.h"
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "pico/multicore.h"
+#include "pico/time.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include "render/resource_page/resource_page.h" 
+#include "render/resource_page/frame_template.h"
+#include "init_page.h"
 #include <math.h>
 #include "resource.h"
-#include "frame_template.h"
 
 #include "pico/cyw43_arch.h"
 #include "btstack_run_loop.h"
@@ -54,6 +57,9 @@ int main()
   OLED_Init();
   OLED_Clear();
   OLED_initFrame(frameBuff[0].frame);
+
+  Render_initPage(frameBuff[0].frame);
+  OLED_RenderFrame(frame_template);
 
   uint8_t resc_data[RESC_QUEUE_SIZE];
   resc_serialize resc_cur;

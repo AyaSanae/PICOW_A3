@@ -1,1 +1,2 @@
 add_subdirectory(resource_page)
+add_subdirectory(init_page)

@@ -67,6 +67,7 @@ target_link_libraries(PICOW_A3
         pico_cyw43_arch_none
         pico_multicore
         resource_page
+        init_page
         pico_sync
         pico_util
         SH1106
